@@ -1,1 +1,1 @@
-"funk"
+"funk u shiet"
