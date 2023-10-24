@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "flask/bin/python",
+    "git.ignoreLimitWarning": true
+}
