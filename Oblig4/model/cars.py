@@ -49,6 +49,26 @@ def update_car(make, model, reg, year, status, location):
 def delete_car(reg):
     _get_connection().execute_query("MATCH (a:Car{reg: $reg}) delete a;", reg = reg)
 
+def order_car(customer_id, car_id):
+    with _get_connection().session() as session:
+        existing_orders = session.run("MATCH (c:Customer)- [:ORDERED]-> (car:Car) WHERE ID(c) = $customer_id RETURN car",
+                                        customer_id=customer_id).data()
+
+        if existing_orders:
+            return {'error': "Customer has already ordered a car."}
+        
+        car = session.run("MATCH (car:Car) WHERE ID(car) = car_id AND car_status = 'available' RETURN car", car_id=car_id).data()
+        if not car:
+            return {"Error": "Car is not found, or not available for booking"}
+        #updates the car status to Booked
+        session.run("MATCH (car:Car) WHERE ID(car) = $car_id SET car.STATUS = 'booked'", car_id=car_id)
+
+        #new order created
+        session.run("MATCH (c:Customer), (car:Car) WHERE ID(c) = $customer_id AND ID(car) = $car_id CREATE (c) -[:ORDERED]-> (car)",
+                        customer_id=customer_id, car_id=car_id)
+
+        car_node = session.run("MATCH (car:Car) WHERE ID(car) = $car_id RETURN car", car_id=car_id).single()
+        return node_to_json(car_node)
 
 class Car:
     def __init__(self, carmake, model, year, status, location):

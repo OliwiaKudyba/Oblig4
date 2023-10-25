@@ -82,3 +82,13 @@ def read_employee_info():
     record = json.loads(request.data)
     print(record)
     return findEmployeeByName(record['name'])
+
+@app.route('/order_car', methods=['POST'])
+def order_car(customer_id, car_id):
+    if customer_id < 0 or customer_id >= len(cars):
+        return jsonify({"message" : "Customer not found"}), 404
+    if car_id < 0 or car_id >= len(cars):
+        return jsonify({"message" : "Car not found"}), 404
+
+    order = order_car(customer_id, car_id)
+    return jsonify({"message" : "Car ordered successfully", "order" : order}), 201
