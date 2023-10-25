@@ -45,3 +45,9 @@ class Customer:
 
 
 
+CREATE (charlie:Person:Costumer {name: 'Charlie Sheen', age: "38", adress: "TullogTøysveien 3"}),
+
+
+CREATE (charlie:Person:Costumer {name: 'Charlie Sheen', age: "38", adress: "TullogTøysveien 3"}),
+(sarah:Person:Employee {name: 'Sarah Tomson', age: "30", adress: "TullogTøysveien 10"}), 
+(car:Car:Car {type: 'Nissan', reg: "EL9999", model: "1995"})

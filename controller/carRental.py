@@ -1,6 +1,6 @@
 from project import app
 from flask import render_template, request, redirect, url_for 
-from project.models.my_dao import *
+from Oblig4.models.cars import *
 
 @app.route('/save_car', methods=["POST"]) 
 
@@ -23,5 +23,3 @@ def delete_car_info():
     delete_car(record['reg'])
     return findAllCars()
 
-
-#bø
