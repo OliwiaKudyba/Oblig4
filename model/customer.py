@@ -44,6 +44,21 @@ def update_customer(name, age, address):
 def delete_customer(name):
     _get_connection().execute_query("MATCH (a:Customer{name: $name}) delete a;", name = name)
 
+
+def findCarsBookedByCustomer(customer_name):
+    query = """
+    MATCH (customer:Customer {name: $customer_name})-[:BOOKED]->(car:Car)
+    RETURN car
+    """
+    with _get_connection().session() as session:
+        booked_cars = session.run(query, customer_name=customer_name)
+        cars_json = [node_to_json(record["car"]) for record in booked_cars]
+    return cars_json
+
+
+
+
+
 class Customer:
     def __init__(self, name, age, address):
         self.name = name

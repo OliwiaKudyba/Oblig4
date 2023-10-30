@@ -82,3 +82,26 @@ def read_employee_info():
     record = json.loads(request.data)
     print(record)
     return findEmployeeByName(record['name'])
+
+@app.route('/order_car', mothods='POST')
+def order_car(customer_id, car_id):
+    data = json.loads(request.data)
+    customer_name = data.get('customer_id')
+    car_reg = data.get('car_id')
+    
+    # Check if the customer has already booked a car
+    booked_cars = findCarsBookedByCustomer(customer_name)
+    if booked_cars:
+        return "Customer has already booked a car", 400
+
+    # Then, update the car's status to "booked"
+    updated_car = update_car(make=None, model=None, reg=car_reg, year=None, status="booked", location=None)
+
+    if updated_car:
+        return "Car successfully booked", 200
+    else:
+        return "Car not found or could not be booked", 404
+
+
+    
+
