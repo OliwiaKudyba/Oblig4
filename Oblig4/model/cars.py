@@ -46,9 +46,18 @@ def update_car(make, model, reg, year, status, location):
         print(nodes_json)
         return nodes_json
 
+def update_car_status(reg, new_status):
+    with _get_connection().session() as session:
+        session.run("MATCH (car:Car {reg: $reg} SET car.status = $new_status",
+                    reg=reg, new_status=new_status)
+        return True
+
+        
 def delete_car(reg):
     _get_connection().execute_query("MATCH (a:Car{reg: $reg}) delete a;", reg = reg)
 
+
+### RANDOM LØSNING
 def order_car(customer_id, car_id):
     with _get_connection().session() as session:
         existing_orders = session.run("MATCH (c:Customer)- [:ORDERED]-> (car:Car) WHERE ID(c) = $customer_id RETURN car",

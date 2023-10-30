@@ -43,6 +43,21 @@ def update_customer(name, age, address):
 def delete_customer(name):
     _get_connection().execute_query("MATCH (a:Customer{name: $name}) delete a;", name = name)
 
+def find_customer_orders(name):
+    with _get_connection().session() as session:
+        result = session.run("MATCH (c:Customer{name: $name}) - [:ORDERED]-> (car:Car) RETURN car",
+                    name=name)
+
+        orders = [node_to_json(record['car']) for record in result]
+        return orders
+
+def create_order (name, reg):
+    with _get_connection().session() as session:
+        session.run ("MATCH (c:Customer {name: $name}), (car:Car ({reg: $reg}) CREATE (c)-[:ORDERED]->(car))",
+                    name=name, reg=reg)
+
+        return True
+
 class Customer:
     def __init__(self, name, age, address):
         self.name = name

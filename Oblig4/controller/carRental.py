@@ -83,6 +83,7 @@ def read_employee_info():
     print(record)
     return findEmployeeByName(record['name'])
 
+'''
 @app.route('/order_car', methods=['POST'])
 def order_car(customer_id, car_id):
     if customer_id < 0 or customer_id >= len(cars):
@@ -92,3 +93,41 @@ def order_car(customer_id, car_id):
 
     order = order_car(customer_id, car_id)
     return jsonify({"message" : "Car ordered successfully", "order" : order}), 201
+'''
+
+@app.route('/order_car', methods=['POST'])
+def order_car():
+    data = json.loads(request.data)
+
+    customer_name = data.get('name')
+    car_reg = data.get('reg')
+
+    if not customer_name or not car_reg:
+        return jsonify({'error': 'Both name and registration are required'}), 400
+
+    #Check if customer has a car ordered previously
+    existing_orders = find_customer_orders(customer_name)
+
+    if existing_orders:
+        return jsonify({'error': 'Customer has already booked a car'}), 400
+
+    #Check and update the status of the car
+    car = findCarByReg(car_reg)
+
+    if not car or car.get('status') != 'available':
+        return jsonify({'error': 'Car not available for rental, or not found'}), 400
+
+    #update the car status to "booked"
+    restult = update_car_status(car_reg, 'booked')
+
+    if restult:
+        #create new order
+        order_result = create_order(customer_name, car_reg)
+
+        if order_result:
+            return jsonify ({'message':'Car has been booked successfully'})
+        else:
+            return jsonify ({'error': 'Failed to create a new order'}), 500
+
+    else:
+        return jsonify ({'error': 'Failed to update car status'}), 500
