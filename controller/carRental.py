@@ -6,8 +6,6 @@ from model.customer import *
 from model.employee import *
 
 ###CARS
-
-
 @app.route('/create_car', methods=["POST"]) 
 def create_car_info():    
     record = json.loads(request.data)
@@ -100,19 +98,26 @@ def findCarsBookedByCustomer(customer_name):
 
 def cancel_order_car(customer_id, car_id):
     # Check if the customer has already booked a car
-    booked_cars = findCarsBookedByCustomer(Customer.customer_name)
+    booked_cars = findCarsBookedByCustomer(Customer.customer_id)
     if booked_cars:
         delete_customer(customer_id)
         delete_car(car_id)
+    else: return 0
 
 
 
-"""
-• Implement an endpoint ‘cancel-order-car’ where a customer-id, car-id is passed as
-parameters. The system must check that the customer with customer-id has booked for
-the car. If the customer has booked the car, the car becomes available.
+def rent_car(customer_id, car_id):
+    booked_cars = findCarsBookedByCustomer(Customer.customer_id)
+    if booked_cars:
+        update_car(car_id.make, car_id.model, car_id.reg, car_id.year, car_id.set_CarStatus(rented), car_id.location)
+    else: return 0
 
-"""
+
+def return_car(customer_id, car_id):
+    booked_cars = findCarsBookedByCustomer(Customer.customer_id)
+    if booked_cars:
+        update_car(car_id.make, car_id.model, car_id.reg, car_id.year, car_id.set_CarStatus(available), car_id.location)
+    else: return 0
 
 
 
