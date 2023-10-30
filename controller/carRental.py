@@ -1,3 +1,4 @@
+from model.cars import _get_connection
 from project import app
 from flask import render_template, request, redirect, url_for 
 from model.cars import *
@@ -5,6 +6,8 @@ from model.customer import *
 from model.employee import *
 
 ###CARS
+
+
 @app.route('/create_car', methods=["POST"]) 
 def create_car_info():    
     record = json.loads(request.data)
@@ -82,3 +85,34 @@ def read_employee_info():
     record = json.loads(request.data)
     print(record)
     return findEmployeeByName(record['name'])
+
+
+def findCarsBookedByCustomer(customer_name):
+    query = """
+    MATCH (customer:Customer {name: $customer_name})-[:BOOKED]->(car:Car)
+    RETURN car
+    """
+    with _get_connection().session() as session:
+        booked_cars = session.run(query, customer_name=customer_name)
+        cars_json = [node_to_json(record["car"]) for record in booked_cars]
+    return cars_json
+
+
+def cancel_order_car(customer_id, car_id):
+    # Check if the customer has already booked a car
+    booked_cars = findCarsBookedByCustomer(Customer.customer_name)
+    if booked_cars:
+        delete_customer(customer_id)
+        delete_car(car_id)
+
+
+
+"""
+• Implement an endpoint ‘cancel-order-car’ where a customer-id, car-id is passed as
+parameters. The system must check that the customer with customer-id has booked for
+the car. If the customer has booked the car, the car becomes available.
+
+"""
+
+
+

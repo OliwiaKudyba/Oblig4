@@ -1,8 +1,12 @@
 from neo4j import GraphDatabase, Driver, AsyncGraphDatabase, AsyncDriver
 import re
+from model.cars import node_to_json
 
-URI = "neo4j+s://c914a714.databases.neo4j.io"
-AUTH = ("neo4j", "Z2NG0YLPs6UTaiFNIN5zn1IcY1smIoWpaYgaa8t1IFc")
+#URI = "neo4j+s://c914a714.databases.neo4j.io"
+#AUTH = ("neo4j", "Z2NG0YLPs6UTaiFNIN5zn1IcY1smIoWpaYgaa8t1IFc")
+URI = "neo4j+s://7aac58cc.databases.neo4j.io"
+AUTH = ("neo4j", "uld_jNEADWDE_ztv27oEFDp_zXEODPtTa8UB62IsJQk")
+
 
 
 def _get_connection() -> Driver:
@@ -25,7 +29,7 @@ def findEmployeeByName(name):
     print(nodes_json)
 
 def create_employee(name, address, branch):
-    customers = _get_connection().execute_query("MERGE (a:Employee{name: $name, address: $address, branch: $branch}) RETURN a;", 
+    employees = _get_connection().execute_query("MERGE (a:Employee{name: $name, address: $address, branch: $branch}) RETURN a;", 
         name=name, address=address, branch=branch)
     nodes_json = [node_to_json(record["a"]) for record in employees] 
     print(nodes_json)
