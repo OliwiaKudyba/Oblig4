@@ -85,17 +85,7 @@ def read_employee_info():
     return findEmployeeByName(record['name'])
 
 
-def findCarsBookedByCustomer(customer_name):
-    query = """
-    MATCH (customer:Customer {name: $customer_name})-[:BOOKED]->(car:Car)
-    RETURN car
-    """
-    with _get_connection().session() as session:
-        booked_cars = session.run(query, customer_name=customer_name)
-        cars_json = [node_to_json(record["car"]) for record in booked_cars]
-    return cars_json
-
-
+@app.route('/cancel_order_car', method=['POST'])
 def cancel_order_car(customer_id, car_id):
     # Check if the customer has already booked a car
     booked_cars = findCarsBookedByCustomer(Customer.customer_id)
@@ -105,7 +95,7 @@ def cancel_order_car(customer_id, car_id):
     else: return 0
 
 
-
+@app.route('/rent_car', method=['POST'])
 def rent_car(customer_id, car_id):
     booked_cars = findCarsBookedByCustomer(Customer.customer_id)
     if booked_cars:
@@ -113,6 +103,7 @@ def rent_car(customer_id, car_id):
     else: return 0
 
 
+@app.route('/return_car', method=['POST'])
 def return_car(customer_id, car_id):
     booked_cars = findCarsBookedByCustomer(Customer.customer_id)
     if booked_cars:
