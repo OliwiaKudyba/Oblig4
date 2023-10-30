@@ -51,6 +51,16 @@ def find_customer_orders(name):
         orders = [node_to_json(record['car']) for record in result]
         return orders
 
+def find_orders_by_name_and_reg(name, reg):
+    with _get_connection().session() as session:
+        result = session.run(
+            "MATCH (c:Customer {name: $name})-[:ORDERED]->(car:Car {reg: $reg}) RETURN car",
+            name=name, reg=reg
+        )
+        orders = [node_to_json(record['car']) for record in result]
+        return orders
+
+
 def create_order (name, reg):
     with _get_connection().session() as session:
         session.run ("MATCH (c:Customer {name: $name}), (car:Car ({reg: $reg}) CREATE (c)-[:ORDERED]->(car))",
