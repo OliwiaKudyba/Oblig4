@@ -10,24 +10,30 @@ def _get_connection() -> Driver:
     driver.verify_connectivity()
     return driver
 
+def node_to_json(node): 
+    node_properties = dict(node.items()) 
+    return node_properties
+
 def findAllCustomers():
     with _get_connection().session() as session:
         customers = session.run("MATCH (a:Customer) RETURN a;")
         nodes_json = [node_to_json(record["a"]) for record in customers] 
         print(nodes_json)
-        return nodes_json
+    return nodes_json
 
 def findCustomerByName(name):
     with _get_connection().session() as session:
         customers = session.run("MATCH (a:Customer) where a.name=$name RETURN a;", name=name)    
         print(customers)
         nodes_json = [node_to_json(record["a"]) for record in customers]
-    print(nodes_json)
+        print(nodes_json)
+    return nodes_json
 
 def create_customer(name, age, address):
-    customers = _get_connection().execute_query("MERGE (a:Customer{name: $name, age: $age, address: $address}) RETURN a;", 
+    with _get_connection().session() as session:
+        customers = session.run("MERGE (a:Customer{name: $name, age: $age, address: $address}) RETURN a;", 
         name=name, age=age, address=address)
-    nodes_json = [node_to_json(record["a"]) for record in customers] 
+        nodes_json = [node_to_json(record["a"]) for record in customers] 
     print(nodes_json)
     return nodes_json
 
@@ -38,7 +44,7 @@ def update_customer(name, age, address):
         print(customers)
         nodes_json = [node_to_json(record["a"]) for record in customers] 
         print(nodes_json)
-        return nodes_json
+    return nodes_json
 
 def delete_customer(name):
     _get_connection().execute_query("MATCH (a:Customer{name: $name}) delete a;", name = name)
@@ -49,7 +55,7 @@ def find_customer_orders(name):
                     name=name)
 
         orders = [node_to_json(record['car']) for record in result]
-        return orders
+    return orders
 
 def find_orders_by_name_and_reg(name, reg):
     with _get_connection().session() as session:
@@ -58,15 +64,15 @@ def find_orders_by_name_and_reg(name, reg):
             name=name, reg=reg
         )
         orders = [node_to_json(record['car']) for record in result]
-        return orders
+    return orders
 
 
 def create_order (name, reg):
     with _get_connection().session() as session:
-        session.run ("MATCH (c:Customer {name: $name}), (car:Car ({reg: $reg}) CREATE (c)-[:ORDERED]->(car))",
+        session.run ("MATCH (c:Customer {name: $name}), (car:Car {reg: $reg}) CREATE (c)-[:ORDERED]->(car)",
                     name=name, reg=reg)
 
-        return True
+    return True
 
 class Customer:
     def __init__(self, name, age, address):

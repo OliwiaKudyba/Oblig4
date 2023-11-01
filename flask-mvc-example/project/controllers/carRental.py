@@ -10,39 +10,40 @@ from project.models.employee import *
 def find_cars():
     return findAllCars()
     
-@app.route('/create_car', methods=["POST"]) 
+@app.route("/create_car", methods=["POST"]) 
 def create_car_info():    
     record = json.loads(request.data)
     print(record)
     return save_car(record['make'], record['model'], record['reg'], record['year'], record['status'], record['location'] )
 
-@app.route('/update_car', methods=['PUT'])
+@app.route("/update_car", methods=["PUT"])
 def update_car_info():
     record = json.loads(request.data)
     print(record)
     return update_car(record['make'], record['model'], record['reg'], record['year'], record['status'], record['location'])
 
-@app.route('/delete_car', methods=['DELETE'])
+@app.route("/delete_car", methods=["DELETE"])
 def delete_car_info():
     record = json.loads(request.data) 
     print(record) 
     delete_car(record['reg'])
     return findAllCars()
 
-@app.route('/read_car', methods=['GET'])
+@app.route("/read_car", methods=["GET"])
 def read_car_info():
     record = json.loads(request.data)
     print(record)
     return findCarByReg(record['reg'])
 
 ####CUSTOMER
-@app.route('/create_customer', methods=["POST"]) 
+@app.route("/create_customer", methods=["POST"]) 
 def create_customer_info():    
     record = json.loads(request.data)
     print(record)
-    return create_customer(record['name'], record['age'], record['address'])
+    create_customer(record['name'], record['age'], record['address'])
+    return findAllCustomers()
 
-@app.route('/update_customer', methods=['PUT'])
+@app.route("/update_customer", methods=["PUT"])
 def update_customer_info():
     record = json.loads(request.data)
     print(record)
@@ -69,11 +70,12 @@ def create_employee_info():
     print(record)
     return create_employee(record['name'], record['address'], record['branch'])
 
-@app.route('/update_employee', methods=['PUT'])
+@app.route("/update_employee", methods=["PUT"])
 def update_employee_info():
     record = json.loads(request.data)
     print(record)
-    return update_employee(record['name'], record['address'], record['branch'])
+    update_employee(record['name'], record['address'], record['branch'])
+    return findAllEmployees()
 
 @app.route('/delete_employee', methods=['DELETE'])
 def delete_employee_info():
@@ -88,19 +90,8 @@ def read_employee_info():
     print(record)
     return findEmployeeByName(record['name'])
 
-'''
-@app.route('/order_car', methods=['POST'])
-def order_car(customer_id, car_id):
-    if customer_id < 0 or customer_id >= len(cars):
-        return jsonify({"message" : "Customer not found"}), 404
-    if car_id < 0 or car_id >= len(cars):
-        return jsonify({"message" : "Car not found"}), 404
 
-    order = order_car(customer_id, car_id)
-    return jsonify({"message" : "Car ordered successfully", "order" : order}), 201
-'''
-
-@app.route('/order_car', methods=['POST'])
+@app.route("/order_car", methods=['POST'])
 def order_car():
     data = json.loads(request.data)
 
@@ -119,8 +110,11 @@ def order_car():
     #Check and update the status of the car
     car = findCarByReg(car_reg)
 
-    if not car or car.get('status') != 'available':
-        return jsonify({'error': 'Car not available for rental, or not found'}), 400
+    if not car or not any(entry.get('statusOfCar') == 'available' for entry in car):
+        return jsonify({'error': 'Car is not available for rental or not found'}), 400
+
+    #if not car or car.get('status') != 'available':
+    #   return jsonify({'error': 'Car not available for rental, or not found'}), 400
 
     #update the car status to "booked"
     restult = update_car_status(car_reg, 'booked')
@@ -193,7 +187,7 @@ def return_car():
 
     customer_name = data.get('name')
     car_reg = data.get('reg')
-    car_status = data_get('status')
+    car_status = data.get('status')
 
     if not customer_name or not car_reg or car_status not in ['ok', 'damaged']:
         return jsonify({'error': 'Name, reg, and valid status are required'}), 400
@@ -211,7 +205,7 @@ def return_car():
 
     result = update_car_status(car_reg, new_status)
 
-    if restult:
+    if result:
         return jsonify({'message': f'Car returned and marked as {new_status}'})
     else:
         return jsonify({'error': 'Failed to update the status of the car to rented'}), 500
