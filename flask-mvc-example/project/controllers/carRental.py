@@ -113,9 +113,6 @@ def order_car():
     if not car or not any(entry.get('statusOfCar') == 'available' for entry in car):
         return jsonify({'error': 'Car is not available for rental or not found'}), 400
 
-    #if not car or car.get('status') != 'available':
-    #   return jsonify({'error': 'Car not available for rental, or not found'}), 400
-
     #update the car status to "booked"
     restult = update_car_status(car_reg, 'booked')
 
@@ -197,7 +194,7 @@ def return_car():
     if not bookings:
         return jsonify({'error': 'Customer does not have a booking for this car'}), 400
 
-    #Updagte the car status based on the return conditions
+    #Update the car status based on the return conditions
     if car_status == 'ok':
         new_status = 'available'
     else:
